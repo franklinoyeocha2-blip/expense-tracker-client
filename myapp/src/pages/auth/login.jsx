@@ -2,7 +2,7 @@ import { useState } from "react";
 import api from "../../api/api";
 
 const Login = () => {
-  const [formData, setFormData] = useState({});
+  const [formData, setFormData] = useState({ email: "", password: "" });
   const [submiting, setSubmiting] = useState(false);
   const [error, setError] = useState(null);
 
@@ -19,7 +19,7 @@ const Login = () => {
     try {
       const response = await api.post("/login", formData);
       console.log("Response", response);
-      setFormData({});
+      setFormData({ email: "", password: "" });
       // window.location.href = "/";
     } catch (error) {
       console.log("Error: ", error);
@@ -33,9 +33,9 @@ const Login = () => {
     <>
       <div className="w-screen h-screen bg-gray-200 flex place-items-center place-content-center">
         <form
-          onSubmit={async (e) => {
+          onSubmit={(e) => {
             e.preventDefault();
-            await submit();
+            submit();
           }}
           className="bg-white w-96  flex flex-col justify-center items-center gap-4 p-8"
         >
@@ -50,6 +50,7 @@ const Login = () => {
               placeholder="Enter your email"
               name="email"
               type="email"
+              value={formData.email}
               className="w-full outline-0 border p-2
                border-gray-200 focus-within:ring-2 
                focus-within:ring-blue-500 rounded text-sm"
@@ -65,6 +66,7 @@ const Login = () => {
               placeholder="Enter your password"
               name="password"
               type="password"
+              value={formData.password}
               className="w-full outline-0 border p-2 text-sm
                border-gray-200 focus-within:ring-2
                 focus-within:ring-blue-500 rounded"
@@ -75,7 +77,7 @@ const Login = () => {
             Don't have an account? <a href="/sign-up">Sign Up</a>
           </p>
           <button className="w-full text-white" type="submit">
-            Sign In
+            {submiting ? "Signing in..." : "Sign In"}
           </button>
 
           {error && (

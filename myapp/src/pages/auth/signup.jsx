@@ -2,8 +2,14 @@ import { useState } from "react";
 import api from "../../api/api";
 
 const Signup = () => {
-  const [formData, setFormData] = useState({});
+  const [formData, setFormData] = useState({
+    first_name: "",
+    last_name: "",
+    email: "",
+    password: "",
+  });
   const [submiting, setSubmiting] = useState(false);
+  const [error, setError] = useState(null);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -14,31 +20,43 @@ const Signup = () => {
   };
 
   async function submit() {
+    console.log(formData);
     setSubmiting(true);
     try {
       const response = await api.post("/signup", formData);
       console.log("Response", response);
-      setFormData({})
-      window.location.href = '/'
+      setFormData({
+        first_name: "",
+        last_name: "",
+        email: "",
+        password: "",
+      });
+      if (response?.status === 201) {
+        alert("Account created successfully. Please login to continue.");
+        window.location.href = "/";
+      }
     } catch (error) {
-      console.log(error);
+      console.log("Error:", error);
+      setError("Something went wrong");
     } finally {
       setSubmiting(false);
     }
   }
   return (
     <>
-      {/* first_name, last_name, email, password */}
       <div className="w-screen h-screen bg-gray-200 flex place-items-center place-content-center">
         <form
-          onSubmit={(e) => {
+          onSubmit={async (e) => {
             e.preventDefault();
             console.log("Submission Data: ", formData);
-            submit();
+            await submit();
           }}
           className="bg-white w-96  flex flex-col justify-center items-center gap-4 p-8"
         >
           <h4 className="text-lg font-bold">Create your account</h4>
+          {error && (
+            <p className="text-red-500 text-lg font-semibold">{error}</p>
+          )}
           {/* Firstname field */}
           <div className="grid w-full">
             <label className="text-sm" htmlFor="">

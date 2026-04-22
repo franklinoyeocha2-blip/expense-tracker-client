@@ -1,7 +1,9 @@
 import { useState } from "react";
 import api from "../../api/api";
+import { authManager } from "../../store/authManager/auth-manager";
+import { observer } from "mobx-react";
 
-const Login = () => {
+const Login = observer(() => {
   const [formData, setFormData] = useState({ email: "", password: "" });
   const [submiting, setSubmiting] = useState(false);
   const [error, setError] = useState(null);
@@ -19,6 +21,7 @@ const Login = () => {
     try {
       const response = await api.post("/login", formData);
       console.log("Response", response);
+      authManager.setAuthenticatedProfile(response.data.token);
       setFormData({ email: "", password: "" });
       // window.location.href = "/";
     } catch (error) {
@@ -87,6 +90,6 @@ const Login = () => {
       </div>
     </>
   );
-};
+});
 
 export default Login;

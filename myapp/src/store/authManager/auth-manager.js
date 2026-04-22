@@ -1,26 +1,48 @@
-import { makeAutoObservable } from "mobx";
+import { makeAutoObservable, runInAction } from "mobx";
 import { authRepository } from "./auth";
 
 class AuthManager {
   status = "initial";
-  user = {};
+  profile = {};
   constructor() {
     makeAutoObservable(this);
   }
-  setAuthenticatedProfile() {
-    this.status = "loading";
+
+  setAuthenticatedProfile(token) {
+    authRepository.setAuthenticatedUser(token);
+    this.loadAuthenticatedProfile();
   }
-  loadAuthenticatedProfile() {
-    this.status = "loading";
-    const { user } = authRepository.getAuthenticatedProfile();
+
+  async loadAuthenticatedProfile() {
+    runInAction(() => {
+      this.status = "loading";
+    });
+    const { user } = await authRepository.getAuthenticatedProfile();
     if (user) {
-      this.status = "authenticated";
-      this.user = user;
+      runInAction(() => {
+        this.status = "authenticated";
+        this.profile = user;
+      });
     } else {
-      this.status = "initial";
-      this.setAuthenticatedProfile();
+      runInAction(() => {
+        this.status = "loaded";
+        this.setAuthenticatedProfile();
+      });
     }
   }
+
+  async init() {
+    const payload = await authRepository.getAuthenticatedProfile();
+    if (!payload) {
+      runInAction(() => {
+        this.status = "loaded";
+      });
+    } else {
+      await this.loadAuthenticatedProfile();
+    }
+  }
+
+  logout() {}
 }
 
 export const authManager = new AuthManager();
